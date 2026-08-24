@@ -38,7 +38,7 @@ test("renders development preview metadata", async () => {
 
 for (const [pathname, expected] of [
   ["/", "让你判断得准"],
-  ["/lesson/typescript-basics", "TypeScript 最低必要基础"],
+  ["/lesson/typescript-basics", "第一次读懂 TypeScript"],
   ["/lesson/ai-code-human-responsibility", "AI 写完代码后"],
   ["/lesson/async-is-a-protocol", "异步不是语法糖"],
   ["/roadmap", "从运行时事实"],

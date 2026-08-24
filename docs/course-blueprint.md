@@ -43,7 +43,7 @@ P00 是面向零基础学习者的 75 分钟前置章节：通过可运行 CodeP
 
 | ID | 时长 | 第一性问题 | CodePilot 增量 | 核心验收 |
 |---|---:|---|---|---|
-| P00 TypeScript 最低必要基础 | 1.25h | 类型、源码与运行时各负责什么？ | ReviewTask、结果格式化与安全输入 | 完成对象补类型、状态联合窄化、unknown 检查三个 Playground |
+| P00 第一次读懂 TypeScript | 1.25h | TypeScript 提醒什么，JavaScript 又负责什么？ | ReviewTask、结果格式化与安全输入 | 完成对象补类型、状态选项、unknown 检查三个 Playground |
 | M00 AI 写完后，人负责什么？ | 0.5h | 编译通过为何不等于正确？ | 初始化质量门禁 | 用 TRUST 找到五类虚假安全感 |
 | M01 JavaScript 才是运行时 | 1.75h | `.ts` 最终由谁执行？ | 最小任务领域模型 | 修复共享引用、异常与模块副作用 |
 | M02 异步不是语法糖 | 1.75h | `await` 在等待谁？ | 可取消 Mock token 流 | 证明取消后无增量、无 timer |
