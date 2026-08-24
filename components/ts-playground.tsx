@@ -246,6 +246,13 @@ export function TsPlayground({ lab, fullPage = false }: { lab: Lab; fullPage?: b
         <summary>需要提示？</summary>
         <p>{lab.hint}</p>
       </details>
+      {lab.expectedDiagnostics && (
+        <div className="lab-expectations">
+          <p><strong>预期诊断：</strong>{lab.expectedDiagnostics}</p>
+          <p><strong>预期运行结果：</strong>{lab.expectedOutput}</p>
+          <details><summary>查看参考答案</summary><pre><code>{lab.solution}</code></pre></details>
+        </div>
+      )}
     </section>
   );
 }

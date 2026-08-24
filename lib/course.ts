@@ -15,7 +15,7 @@ export type LessonSection = {
 };
 
 export type Lesson = {
-  id: "M00" | "M01" | "M02";
+  id: "P00" | "M00" | "M01" | "M02";
   slug: string;
   order: number;
   phase: CoursePhase;
@@ -27,7 +27,7 @@ export type Lesson = {
   prerequisites: string[];
   outcomes: string[];
   concepts: string[];
-  labId: keyof typeof labs;
+  labIds: (keyof typeof labs)[];
   verifyCommand: string;
   sections: LessonSection[];
 };
@@ -39,9 +39,93 @@ export type Lab = {
   prompt: string;
   hint: string;
   initialCode: string;
+  expectedDiagnostics?: string;
+  expectedOutput?: string;
+  solution?: string;
 };
 
 export const labs = {
+  "p00-type-task": {
+    id: "p00-type-task",
+    lessonId: "P00",
+    title: "Playground 1 · 为任务对象补全类型",
+    prompt: "先运行并预测输出；再为参数补上 ReviewTask 类型，修复 typo，并观察红线消失。",
+    hint: "定义 title、priority 和可选的 assignee；不要用 any 掩盖拼写错误。",
+    initialCode: `function formatTask(task) {
+  return \`[\${task.priority}] \${task.titel}\`;
+}
+
+console.log(formatTask({ title: "检查登录", priority: 1 }));`,
+    expectedDiagnostics: "参数 task 隐式具有 any 类型；补类型后会指出 titel 不存在，并建议 title。",
+    expectedOutput: "修复前：[1] undefined；修复后：[1] 检查登录",
+    solution: `type ReviewTask = {
+  title: string;
+  priority: number;
+  assignee?: string;
+};
+
+function formatTask(task: ReviewTask): string {
+  return \`[\${task.priority}] \${task.title}\`;
+}
+
+console.log(formatTask({ title: "检查登录", priority: 1 }));`,
+  },
+  "p00-task-status": {
+    id: "p00-task-status",
+    lessonId: "P00",
+    title: "Playground 2 · 用联合类型表示状态",
+    prompt: "预测两个分支的输出；把 string 改成字面量联合，并补全 blocked 分支完成窄化。",
+    hint: "状态是 \"todo\" | \"reviewing\" | \"done\" | \"blocked\"；在每个条件分支中状态会变窄。",
+    initialCode: `type TaskStatus = string;
+
+function statusLabel(status: TaskStatus): string {
+  if (status === "done") return "已完成";
+  if (status === "reviewing") return "审查中";
+  return "待处理";
+}
+
+console.log(statusLabel("blocked"));
+console.log(statusLabel("typo"));`,
+    expectedDiagnostics: "使用 string 时没有诊断；改成联合后，\"typo\" 不能赋给 TaskStatus。",
+    expectedOutput: "补全分支后：已阻塞；删除非法调用后不再输出 typo 对应结果。",
+    solution: `type TaskStatus = "todo" | "reviewing" | "done" | "blocked";
+
+function statusLabel(status: TaskStatus): string {
+  if (status === "done") return "已完成";
+  if (status === "reviewing") return "审查中";
+  if (status === "blocked") return "已阻塞";
+  return "待处理";
+}
+
+console.log(statusLabel("blocked"));`,
+  },
+  "p00-unknown-input": {
+    id: "p00-unknown-input",
+    lessonId: "P00",
+    title: "Playground 3 · 安全读取 unknown",
+    prompt: "先查看直接读取 unknown 的诊断；再用 typeof、null 检查和 in 检查安全格式化输入。",
+    hint: "先确认 value 是非 null object，再确认 \"title\" in value，最后检查 value.title 是 string。",
+    initialCode: `function readTitle(value: unknown): string {
+  return value.title.toUpperCase();
+}
+
+console.log(readTitle({ title: "security review" }));`,
+    expectedDiagnostics: "value 的类型为 unknown，未经窄化不能读取 title。",
+    expectedOutput: "SECURITY REVIEW",
+    solution: `function readTitle(value: unknown): string {
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "title" in value &&
+    typeof value.title === "string"
+  ) {
+    return value.title.toUpperCase();
+  }
+  return "UNTITLED";
+}
+
+console.log(readTitle({ title: "security review" }));`,
+  },
   "m00-runtime-boundary": {
     id: "m00-runtime-boundary",
     lessonId: "M00",
@@ -103,9 +187,74 @@ Promise.resolve().then(() => console.log("C: microtask"));
 
 export const lessons: Lesson[] = [
   {
+    id: "P00",
+    slug: "typescript-basics",
+    order: 0,
+    phase: "runtime",
+    kicker: "零基础预备章节",
+    title: "TypeScript 最低必要基础",
+    summary: "用 CodePilot 的可运行小实验补齐阅读、修改 TypeScript 所需的最低基础；它是 M00–M02 的前置章节，不改变原模块编号。",
+    durationMinutes: 75,
+    projectStage: "P0",
+    prerequisites: [],
+    outcomes: [
+      "说清 TypeScript、JavaScript、Node.js 与浏览器各自负责什么",
+      "读写任务对象、函数、联合类型、type、interface 与安全的 unknown 窄化",
+      "从 TypeScript 诊断定位源码，并解释类型为何不会保护编译后的运行时",
+    ],
+    concepts: ["最低必要语法", "类型推断", "联合与窄化", "unknown", "类型擦除"],
+    labIds: ["p00-type-task", "p00-task-status", "p00-unknown-input"],
+    verifyCommand: "npm run verify:lesson -- P00",
+    sections: [
+      {
+        id: "runtime-map", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "先画地图：TS 写给工具，JS 跑在运行时",
+        paragraphs: ["运行下面示例，先预测浏览器或 Node.js 会打印什么。TypeScript 是带静态类型的源码语言；编译器检查并产出 JavaScript。Node.js 和浏览器都是 JavaScript 运行时，但提供的 API 不同。", "把 message 改成数字并调用 toUpperCase，观察诊断；再修复它。这个循环比背语法表更重要。"],
+        code: `const message = "CodePilot ready";\nconsole.log(message.toUpperCase());`,
+        callout: { tone: "runtime", title: "谁真正执行？", body: "运行时执行编译后的 JavaScript，不执行 TypeScript 类型。浏览器有 DOM，Node.js 有服务端 API。" },
+      },
+      {
+        id: "values", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "变量和值：先预测，再故意制造不匹配",
+        paragraphs: ["用 const 表示不重新赋值的绑定，用 let 表示需要重新赋值的绑定。字符串、数字、布尔值是常见原始值；null 常表示明确的空，undefined 常表示尚未提供。", "先预测输出，再把 let count 的下一次赋值改成字符串，查看诊断并恢复。const 限制的是重新赋值，并不会自动冻结对象。"],
+        code: `const project = "CodePilot";\nlet count = 1;\nconst enabled = true;\nconst owner: string | null = null;\nlet note: string | undefined;\ncount += 1;\nconsole.log(project, count, enabled, owner, note);`,
+      },
+      {
+        id: "collections", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "数组、对象、属性访问与可选属性",
+        paragraphs: ["对象把相关属性组合起来，数组保存同类元素。点号和方括号都能访问属性；问号声明属性可以缺席。先预测两条输出，再删掉 ?.，观察 assignee 可能为 undefined 的诊断。", "随后进入第一个 Playground：为无类型任务补 ReviewTask，修复只有类型检查才能及早发现的属性拼写。"],
+        code: `type ReviewTask = { title: string; tags: string[]; assignee?: string };\nconst task: ReviewTask = { title: "检查边界", tags: ["security"] };\nconsole.log(task.title, task["tags"][0]);\nconsole.log(task.assignee?.toUpperCase() ?? "未分配");`,
+      },
+      {
+        id: "functions", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "函数把输入、输出与下一步行为连接起来",
+        paragraphs: ["参数是输入，return 决定输出。箭头函数是函数表达式的紧凑写法；回调则是作为值传给另一个函数的函数。先预测 map 的结果，再把 format 的返回类型标成 number，阅读诊断。", "不要只盯住错误行：诊断通常同时告诉你实际类型、期望类型和契约来源。"],
+        code: `const format = (title: string): string => title.toUpperCase();\nfunction renderAll(items: string[], render: (item: string) => string): string[] {\n  return items.map(render);\n}\nconsole.log(renderAll(["types", "runtime"], format));`,
+      },
+      {
+        id: "type-language", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "标注、推断、联合与字面量类型",
+        paragraphs: ["编译器能从初始值推断类型，因此不必标注每个局部变量；参数和公开契约则常值得明确。联合类型表示多个允许集合，字面量类型把值限制到精确选项。", "先运行宽泛的 string 状态，再在第二个 Playground 收紧为字面量联合。故意保留 typo 调用，观察诊断，然后用条件分支窄化并修复。"],
+        code: `let inferred = "review";\ntype Priority = 1 | 2 | 3;\ntype Result = string | null;\nconst priority: Priority = 1;\nconst result: Result = priority === 1 ? "urgent" : null;\nconsole.log(inferred, result);`,
+      },
+      {
+        id: "aliases-interfaces", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "type 与 interface 都能命名对象契约",
+        paragraphs: ["type 能命名联合和对象形状；interface 主要描述对象形状并支持 extends。入门阶段不必争论二选一：对状态联合用 type，对可扩展对象契约可用 interface，并在项目内保持一致。", "预测格式化结果，再删掉 ReviewResult 的 summary，查看调用点缺少必需属性的诊断；随后把 summary 改成可选属性并安全处理。"],
+        code: `type TaskStatus = "todo" | "done";\ninterface ReviewResult { summary: string; status: TaskStatus }\ninterface DetailedResult extends ReviewResult { findings: number }\nconst result: DetailedResult = { summary: "通过", status: "done", findings: 0 };\nconsole.log(\`\${result.summary}: \${result.findings}\`);`,
+      },
+      {
+        id: "unknown-any", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "unknown 要求证据，any 关闭检查",
+        paragraphs: ["any 让几乎所有操作通过，错误会逃到运行时；unknown 同样可以接收任意输入，却必须经过 typeof、null 或属性检查才能使用。边界输入默认选 unknown。", "第三个 Playground 会先产生诊断。预测为何它不能编译，再逐步添加形状证据；不要把 unknown 换成 any 作为修复。"],
+        code: `const unsafe: any = 42;\n// unsafe.toUpperCase() 会通过类型检查，却在运行时失败\nconst input: unknown = { title: "review" };\nconsole.log(typeof input);`,
+        callout: { tone: "boundary", title: "诊断是导航，不是惩罚", body: "从错误位置读起，找出实际类型与期望类型，再回到契约来源；一次只改一个假设。" },
+      },
+      {
+        id: "erasure", eyebrow: "运行 → 预测 → 修改 → 诊断", title: "最后的心智模型：类型编译后会被擦除",
+        paragraphs: ["先预测生成的 JavaScript 中还剩什么：ReviewTask、参数标注和返回类型都会消失，只留下创建对象和调用函数的代码。修改类型能改变诊断，却不会在运行时自动验证 JSON。", "这正是 P00 与 M00–M02 的接口：P00 让你能读写最小 TypeScript；M00 建立证据责任，M01 深入 JavaScript 运行时，M02 再进入异步协议。"],
+        code: `type ReviewTask = { title: string };\nfunction titleOf(task: ReviewTask): string { return task.title; }\nconsole.log(titleOf({ title: "检查类型擦除" }));`,
+        callout: { tone: "static", title: "类型不是运行时护盾", body: "来自网络、JSON、存储或模型的值仍需运行时检查。类型只约束编译器能够看见的源码关系。" },
+      },
+    ],
+  },
+  {
     id: "M00",
     slug: "ai-code-human-responsibility",
-    order: 0,
+    order: 1,
     phase: "runtime",
     kicker: "开始之前",
     title: "AI 写完代码后，人负责什么？",
@@ -113,14 +262,14 @@ export const lessons: Lesson[] = [
       "建立第一条底线：编译通过只是静态证据，真正可信还需要运行时边界、异常路径、测试和观测。",
     durationMinutes: 30,
     projectStage: "P0",
-    prerequisites: [],
+    prerequisites: ["P00"],
     outcomes: [
       "区分编辑器、类型检查、转译、运行和测试的职责",
       "用 TRUST 五层框架审查 AI 生成代码",
       "识别类型断言、吞异常和伪测试带来的虚假安全感",
     ],
     concepts: ["可信证据", "类型擦除", "TRUST", "运行时边界"],
-    labId: "m00-runtime-boundary",
+    labIds: ["m00-runtime-boundary"],
     verifyCommand: "npm run verify:lesson -- M00",
     sections: [
       {
@@ -179,7 +328,7 @@ return payload.code.toUpperCase();`,
   {
     id: "M01",
     slug: "javascript-is-the-runtime",
-    order: 1,
+    order: 2,
     phase: "runtime",
     kicker: "运行时基础",
     title: "JavaScript 才是运行时",
@@ -194,7 +343,7 @@ return payload.code.toUpperCase();`,
       "安全处理任意 throw 值",
     ],
     concepts: ["值与引用", "闭包", "this", "ESM", "unknown error"],
-    labId: "m01-shared-reference",
+    labIds: ["m01-shared-reference"],
     verifyCommand: "npm run verify:lesson -- M01",
     sections: [
       {
@@ -261,7 +410,7 @@ console.log(base.options.retries); // 9`,
   {
     id: "M02",
     slug: "async-is-a-protocol",
-    order: 2,
+    order: 3,
     phase: "runtime",
     kicker: "异步与流",
     title: "异步不是语法糖",
@@ -276,7 +425,7 @@ console.log(base.options.retries); // 9`,
       "使用 AbortSignal 贯穿超时、用户取消与清理",
     ],
     concepts: ["event loop", "Promise", "AsyncIterable", "AbortSignal", "finally"],
-    labId: "m02-event-order",
+    labIds: ["m02-event-order"],
     verifyCommand: "npm run verify:lesson -- M02",
     sections: [
       {

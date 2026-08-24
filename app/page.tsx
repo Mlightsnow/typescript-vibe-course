@@ -40,7 +40,7 @@ export default function Home() {
     <main className="home-page">
       <section className="home-hero">
         <div className="hero-copy">
-          <span className="release-pill"><i /> 第一阶段现已开放 · M00–M02</span>
+          <span className="release-pill"><i /> 第一阶段现已开放 · P00 + M00–M02</span>
           <p className="hero-kicker">TYPE · RUNTIME · EVIDENCE</p>
           <h1>别只让 AI 写得快。<br /><em>让你判断得准。</em></h1>
           <p className="hero-lead">
@@ -48,7 +48,7 @@ export default function Home() {
             学会审查生成代码、修改 React 项目，并逐步构建可靠的 Node.js 后端。
           </p>
           <div className="hero-actions">
-            <Link href="/lesson/ai-code-human-responsibility" className="primary-link large-link">
+            <Link href="/lesson/typescript-basics" className="primary-link large-link">
               开始第一章 <ArrowRight size={18} />
             </Link>
             <Link href="/roadmap" className="text-link">查看 20–30 小时课程地图</Link>
@@ -84,7 +84,7 @@ export default function Home() {
             <span className="block-eyebrow runtime-text">PHASE 01 · 运行时基础</span>
             <h2>先建立不会被框架掩盖的判断力</h2>
           </div>
-          <p>3 章 · {formatDuration(lessons.reduce((total, lesson) => total + lesson.durationMinutes, 0))}</p>
+          <p>4 章 · {formatDuration(lessons.reduce((total, lesson) => total + lesson.durationMinutes, 0))} · P00–M02 全部开放</p>
         </header>
         <div className="lesson-card-grid">
           {lessons.map((lesson) => (

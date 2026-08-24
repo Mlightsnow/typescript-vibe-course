@@ -10,10 +10,10 @@
 
 ## 当前版本
 
-第一阶段 M00–M02 已实现：
+第一阶段 P00 + M00–M02 已实现。P00 是 75 分钟的**零基础预备章节**，不会导致 M00–M02 重编号或旧书签失效：
 
 - 响应式课程网站、课程地图与 CodePilot 项目页；
-- 3 章完整中文课程样板；
+- 4 章完整中文课程，其中 P00 通过三个渐进 Playground 补齐最低必要 TypeScript 基础；
 - Monaco TypeScript 编辑器、类型诊断和隔离 Web Worker 执行；
 - 本地学习进度、实验草稿、全文搜索和代码复制；
 - 可取消的 Mock CodePilot 流式 CLI；
@@ -44,7 +44,8 @@ npm run typecheck
 # 单元测试
 npm run test:unit
 
-# 验收某一已开放章节
+# 验收某一已开放章节（零基础预备章使用 P00）
+npm run verify:lesson -- P00
 npm run verify:lesson -- M02
 
 # 运行不连接模型的 CodePilot P0
@@ -60,7 +61,8 @@ CodePilot 运行时第一次按 `Ctrl+C` 会请求优雅取消，第二次会立
 
 | 阶段 | 章节 | 能力 |
 |---|---|---|
-| 01 运行时基础 | M00–M02 | 静态证据、引用、模块、Promise、流与取消 |
+| 00 零基础预备 | P00（75 分钟） | 读写值、对象、函数与基础类型；读诊断；安全窄化 unknown；理解类型擦除 |
+| 01 运行时基础 | M00–M02 | 在 P00 之后学习静态证据、引用、模块、Promise、流与取消；原编号与 URL 保持不变 |
 | 02 类型系统 | M03–M05 | 联合、窄化、泛型、边界校验与构建职责 |
 | 03 原生 Node 后端 | M06–M07 | REST、SSE、错误协议与行为测试 |
 | 04 企业后端 | M08–M12 | NestJS、SQLite → PostgreSQL、Agent、队列与观测 |

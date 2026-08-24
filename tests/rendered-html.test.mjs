@@ -38,6 +38,7 @@ test("renders development preview metadata", async () => {
 
 for (const [pathname, expected] of [
   ["/", "让你判断得准"],
+  ["/lesson/typescript-basics", "TypeScript 最低必要基础"],
   ["/lesson/ai-code-human-responsibility", "AI 写完代码后"],
   ["/lesson/async-is-a-protocol", "异步不是语法糖"],
   ["/roadmap", "从运行时事实"],
@@ -50,3 +51,18 @@ for (const [pathname, expected] of [
     assert.match(await response.text(), new RegExp(expected));
   });
 }
+
+test("home starts at P00 and renders the course in P00 → M00 → M01 order", async () => {
+  const response = await render("/");
+  const html = await response.text();
+  assert.match(html, /href=["']\/lesson\/typescript-basics["'][^>]*>\s*开始第一章/);
+  const p00 = html.indexOf("P00");
+  const m00 = html.indexOf("M00", p00 + 1);
+  const m01 = html.indexOf("M01", m00 + 1);
+  assert.ok(p00 >= 0 && p00 < m00 && m00 < m01);
+
+  const p00Lesson = await (await render("/lesson/typescript-basics")).text();
+  assert.match(p00Lesson, /href=["']\/lesson\/ai-code-human-responsibility["']/);
+  const m00Lesson = await (await render("/lesson/ai-code-human-responsibility")).text();
+  assert.match(m00Lesson, /href=["']\/lesson\/typescript-basics["']/);
+});

@@ -22,7 +22,7 @@ const toneLabels = {
 
 export function LessonView({ lesson }: { lesson: Lesson }) {
   const adjacent = getAdjacentLessons(lesson);
-  const lab = labs[lesson.labId];
+  const lessonLabs = lesson.labIds.map((labId) => labs[labId]);
 
   return (
     <main className="lesson-layout">
@@ -72,7 +72,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                   </div>
                 </aside>
               )}
-              {index === 0 && <TsPlayground lab={lab} />}
+              {lessonLabs[index] && <TsPlayground lab={lessonLabs[index]} />}
             </section>
           ))}
 
