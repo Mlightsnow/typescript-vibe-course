@@ -37,13 +37,13 @@ test("renders development preview metadata", async () => {
 });
 
 for (const [pathname, expected] of [
-  ["/", "让你判断得准"],
-  ["/lesson/typescript-basics", "第一次读懂 TypeScript"],
-  ["/lesson/ai-code-human-responsibility", "AI 写完代码后"],
-  ["/lesson/async-is-a-protocol", "异步不是语法糖"],
-  ["/roadmap", "从运行时事实"],
+  ["/", "Judge it better"],
+  ["/lesson/typescript-basics", "Read TypeScript for the First Time"],
+  ["/lesson/ai-code-human-responsibility", "What Is the Human Responsible"],
+  ["/lesson/async-is-a-protocol", "Async Is a Protocol"],
+  ["/roadmap", "runtime facts"],
   ["/playground", "TypeScript Playground"],
-  ["/project", "先把流式协议做对"],
+  ["/project", "Make the streaming protocol correct"],
 ]) {
   test(`renders ${pathname}`, async () => {
     const response = await render(pathname);
@@ -55,7 +55,9 @@ for (const [pathname, expected] of [
 test("home starts at P00 and renders the course in P00 → M00 → M01 order", async () => {
   const response = await render("/");
   const html = await response.text();
-  assert.match(html, /href=["']\/lesson\/typescript-basics["'][^>]*>\s*开始第一章/);
+  assert.match(html, /href=["']\/lesson\/typescript-basics["'][^>]*>\s*Start the first lesson/);
+  assert.match(html, /aria-label=["']切换到中文["']/);
+  assert.match(html, /aria-label=["']Use dark theme["']/);
   const p00 = html.indexOf("P00");
   const m00 = html.indexOf("M00", p00 + 1);
   const m01 = html.indexOf("M01", m00 + 1);

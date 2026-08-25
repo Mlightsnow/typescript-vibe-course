@@ -129,6 +129,11 @@ kbd {
   font: 700 11px/1 ui-monospace, monospace;
   color: #505965;
 }
+.top-actions { justify-self: end; display: flex; align-items: center; gap: 8px; margin-right: 20px; }
+.top-actions .top-progress { width: 120px; margin-right: 0; }
+.preference-button { min-height: 36px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font-size: 11px; font-weight: 700; cursor: pointer; }
+.preference-button:hover { border-color: var(--static); color: var(--static); }
+.preference-button.icon-only { width: 36px; justify-content: center; padding: 0; }
 .progress-track { height: 5px; flex: 1; overflow: hidden; border-radius: 99px; background: #dbdcd7; }
 .progress-track i { display: block; height: 100%; border-radius: inherit; background: var(--evidence); transition: width .3s ease; }
 
@@ -599,6 +604,7 @@ kbd {
   .brand-copy small { color: #7c838b; }
   .search-trigger { justify-self: end; width: 41px; padding: 0; justify-content: center; }
   .search-trigger span, .search-trigger kbd, .top-progress { display: none; }
+  .top-actions { margin-right: 0; }
   .course-nav { transform: translateX(-101%); transition: transform .22s ease; box-shadow: 20px 0 50px rgba(9, 15, 22, .2); }
   .course-nav.is-open { transform: translateX(0); }
   .page-stage { padding-left: 0; }
@@ -611,6 +617,8 @@ kbd {
 
 @media (max-width: 640px) {
   .brand-copy strong { font-size: 11px; }.brand-copy small { display: none; }
+  .preference-button span { display: none; }
+  .preference-button { width: 34px; justify-content: center; padding: 0; }
   .home-page, .wide-page, .lesson-layout { padding: 38px 18px 70px; }
   .home-hero { min-height: 0; gap: 43px; }
   .hero-copy h1 { font-size: 41px; }
@@ -644,6 +652,52 @@ kbd {
   .project-next { grid-template-columns: 24px 1fr; }.project-next a { grid-column: 2; }
   .search-footer { display: none; }
 }
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0f141b;
+  --paper-deep: #151c25;
+  --surface: #1a222d;
+  --ink: #edf2f7;
+  --muted: #a9b3c0;
+  --line: #354151;
+  --line-strong: #4a5869;
+  --static-soft: #28264c;
+  --runtime-soft: #3a271f;
+  --boundary-soft: #173732;
+  --evidence-soft: #19372a;
+  --failure-soft: #3d2227;
+  --shadow: 0 24px 70px rgba(0, 0, 0, .35);
+}
+html[data-theme="dark"] body,
+html[data-theme="dark"] .page-stage { background: var(--paper); color: var(--ink); }
+html[data-theme="dark"] .topbar { border-color: var(--line); background: rgba(15, 20, 27, .94); }
+html[data-theme="dark"] .search-trigger,
+html[data-theme="dark"] .lesson-card,
+html[data-theme="dark"] .dashboard-progress-card,
+html[data-theme="dark"] .context-card,
+html[data-theme="dark"] .playground-header,
+html[data-theme="dark"] .roadmap-current,
+html[data-theme="dark"] .roadmap-phase-head,
+html[data-theme="dark"] .future-phase-list article,
+html[data-theme="dark"] .project-command-card,
+html[data-theme="dark"] .acceptance-section,
+html[data-theme="dark"] .provider-later-card,
+html[data-theme="dark"] .verification-card,
+html[data-theme="dark"] .lesson-pagination a { border-color: var(--line); background: var(--surface); color: var(--ink); }
+html[data-theme="dark"] .hero-lead,
+html[data-theme="dark"] .lesson-summary,
+html[data-theme="dark"] .lesson-section > p,
+html[data-theme="dark"] .lesson-card-summary,
+html[data-theme="dark"] .page-heading > p,
+html[data-theme="dark"] .model-card p { color: #b9c3ce; }
+html[data-theme="dark"] .model-card { border-color: var(--line); background: rgba(26, 34, 45, .97); }
+html[data-theme="dark"] .hero-model::before { background: #202934; }
+html[data-theme="dark"] .principle-list li,
+html[data-theme="dark"] .concept-row i,
+html[data-theme="dark"] .tag-list i,
+html[data-theme="dark"] .lab-hint,
+html[data-theme="dark"] .lab-expectations { border-color: var(--line); background: #18212c; color: #c8d1dc; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }

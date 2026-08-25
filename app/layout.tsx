@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppShell } from "@/components/app-shell";
+import { PreferencesProvider } from "@/lib/preferences";
 
 export const metadata: Metadata = {
   title: {
-    default: "Vibe Coding 时代的 TypeScript",
+    default: "TypeScript for the Vibe Coding Era",
     template: "%s · TypeScript First Principles",
   },
-  description: "从 JavaScript 运行时出发，建立审查 AI 代码与开发可靠 TypeScript 后端的能力。",
+  description: "Learn TypeScript from JavaScript runtime fundamentals and build the judgment needed to review AI-generated code.",
   other: {
     "codex-preview": "development",
   },
@@ -23,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
-      <body className="antialiased"><AppShell>{children}</AppShell></body>
+    <html lang="en" suppressHydrationWarning>
+      <body className="antialiased"><PreferencesProvider><AppShell>{children}</AppShell></PreferencesProvider></body>
     </html>
   );
 }

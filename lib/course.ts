@@ -536,10 +536,11 @@ export const searchItems = [
   },
 ];
 
-export function formatDuration(minutes: number) {
-  if (minutes < 60) return `${minutes} 分钟`;
+export function formatDuration(minutes: number, locale: "en" | "zh" = "zh") {
+  if (minutes < 60) return locale === "en" ? `${minutes} min` : `${minutes} 分钟`;
   const hours = Math.floor(minutes / 60);
   const rest = minutes % 60;
+  if (locale === "en") return rest ? `${hours} hr ${rest} min` : `${hours} hr`;
   return rest ? `${hours} 小时 ${rest} 分钟` : `${hours} 小时`;
 }
 
