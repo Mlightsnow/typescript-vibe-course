@@ -10,18 +10,25 @@ import {
   Code2,
   Command,
   Menu,
+  Languages,
+  Moon,
   Search,
+  Sun,
   X,
 } from "lucide-react";
 import { lessons } from "@/lib/course";
 import { useCourseProgress } from "@/lib/progress";
 import { SearchDialog } from "@/components/search-dialog";
+import { lessonsEn } from "@/lib/course-en";
+import { usePreferences } from "@/lib/preferences";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const { progress } = useCourseProgress();
+  const { locale, setLocale, theme, toggleTheme } = usePreferences();
+  const activeLessons = locale === "en" ? lessonsEn : lessons;
 
   const openSearch = useCallback(() => setSearchOpen(true), []);
 
@@ -41,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [openSearch]);
 
-  const percent = Math.round((progress.completedLessons.length / lessons.length) * 100);
+  const percent = Math.round((progress.completedLessons.length / activeLessons.length) * 100);
 
   return (
     <div className="app-shell">
@@ -50,7 +57,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           className="mobile-menu-button"
           type="button"
           onClick={() => setNavOpen((value) => !value)}
-          aria-label={navOpen ? "关闭课程导航" : "打开课程导航"}
+          aria-label={navOpen ? (locale === "en" ? "Close course navigation" : "关闭课程导航") : (locale === "en" ? "Open course navigation" : "打开课程导航")}
         >
           {navOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -58,24 +65,32 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="brand-mark">TS</span>
           <span className="brand-copy">
             <strong>TypeScript · First Principles</strong>
-            <small>为 Vibe Coding 建立判断力</small>
+            <small>{locale === "en" ? "Build judgment for vibe coding" : "为 Vibe Coding 建立判断力"}</small>
           </span>
         </Link>
         <button className="search-trigger" type="button" onClick={openSearch}>
           <Search size={17} aria-hidden="true" />
-          <span>搜索课程</span>
+          <span>{locale === "en" ? "Search lessons" : "搜索课程"}</span>
           <kbd>⌘ K</kbd>
         </button>
-        <div className="top-progress" aria-label={`课程完成度 ${percent}%`}>
+        <div className="top-actions">
+          <button className="preference-button" type="button" onClick={() => setLocale(locale === "en" ? "zh" : "en")} aria-label={locale === "en" ? "切换到中文" : "Switch to English"}>
+            <Languages size={16} /><span>{locale === "en" ? "中文" : "EN"}</span>
+          </button>
+          <button className="preference-button icon-only" type="button" onClick={toggleTheme} aria-label={theme === "light" ? "Use dark theme" : "Use light theme"}>
+            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
+          <div className="top-progress" aria-label={`${locale === "en" ? "Course progress" : "课程完成度"} ${percent}%`}>
           <span>{percent}%</span>
           <div className="progress-track"><i style={{ width: `${percent}%` }} /></div>
+          </div>
         </div>
       </header>
 
       <aside className={`course-nav ${navOpen ? "is-open" : ""}`}>
         <nav aria-label="课程章节">
-          <p className="nav-label">第一阶段 · 运行时</p>
-          {lessons.map((lesson) => {
+          <p className="nav-label">{locale === "en" ? "PHASE 01 · RUNTIME" : "第一阶段 · 运行时"}</p>
+          {activeLessons.map((lesson) => {
             const active = pathname === `/lesson/${lesson.slug}`;
             const done = progress.completedLessons.includes(lesson.id);
             return (
@@ -97,9 +112,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
 
-          <p className="nav-label nav-label-spaced">工具</p>
+          <p className="nav-label nav-label-spaced">{locale === "en" ? "TOOLS" : "工具"}</p>
           <Link href="/roadmap" onClick={() => setNavOpen(false)} className={`utility-nav-item ${pathname === "/roadmap" ? "is-active" : ""}`}>
-            <BookOpen size={17} /> 课程地图
+            <BookOpen size={17} /> {locale === "en" ? "Roadmap" : "课程地图"}
           </Link>
           <Link href="/playground" onClick={() => setNavOpen(false)} className={`utility-nav-item ${pathname === "/playground" ? "is-active" : ""}`}>
             <Code2 size={17} /> Playground
@@ -109,8 +124,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Link>
         </nav>
         <div className="nav-principle">
-          <span>本阶段原则</span>
-          <strong>先预测运行时，再相信类型。</strong>
+          <span>{locale === "en" ? "PHASE PRINCIPLE" : "本阶段原则"}</span>
+          <strong>{locale === "en" ? "Predict the runtime before trusting the types." : "先预测运行时，再相信类型。"}</strong>
         </div>
       </aside>
 

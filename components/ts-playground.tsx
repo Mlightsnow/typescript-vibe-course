@@ -7,6 +7,7 @@ import type { editor } from "monaco-editor";
 import { AlertTriangle, CheckCircle2, Play, RotateCcw, SquareTerminal } from "lucide-react";
 import type { Lab } from "@/lib/course";
 import { useCourseProgress } from "@/lib/progress";
+import { usePreferences } from "@/lib/preferences";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -91,6 +92,7 @@ export function TsPlayground({ lab, fullPage = false }: { lab: Lab; fullPage?: b
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<MonacoApi | null>(null);
   const { markLab } = useCourseProgress();
+  const { locale } = usePreferences();
 
   useEffect(() => {
     const saved = window.localStorage.getItem(draftKey);
@@ -177,11 +179,11 @@ export function TsPlayground({ lab, fullPage = false }: { lab: Lab; fullPage?: b
         </div>
         <div className="playground-actions">
           <button type="button" className="secondary-button" onClick={reset}>
-            <RotateCcw size={15} /> 重置
+            <RotateCcw size={15} /> {locale === "en" ? "Reset" : "重置"}
           </button>
           {!compact && (
             <button type="button" className="run-button" onClick={run} disabled={status === "running"}>
-              <Play size={15} fill="currentColor" /> {status === "running" ? "运行中…" : "类型检查并运行"}
+              <Play size={15} fill="currentColor" /> {status === "running" ? (locale === "en" ? "Running…" : "运行中…") : (locale === "en" ? "Check and run" : "类型检查并运行")}
             </button>
           )}
         </div>
@@ -219,7 +221,7 @@ export function TsPlayground({ lab, fullPage = false }: { lab: Lab; fullPage?: b
       {!compact && (
         <div className="playground-results">
           <div>
-            <strong>类型诊断 <span>{diagnostics.length}</span></strong>
+            <strong>{locale === "en" ? "Diagnostics" : "类型诊断"} <span>{diagnostics.length}</span></strong>
             {diagnostics.length ? (
               <ul className="diagnostic-list">
                 {diagnostics.map((item) => <li key={item}>{item}</li>)}
@@ -230,7 +232,7 @@ export function TsPlayground({ lab, fullPage = false }: { lab: Lab; fullPage?: b
           </div>
           <div>
             <strong>
-              运行输出
+              {locale === "en" ? "Output" : "运行输出"}
               {status === "passed" && <CheckCircle2 size={16} className="result-ok" />}
               {status === "failed" && <AlertTriangle size={16} className="result-error" />}
             </strong>
@@ -243,9 +245,16 @@ export function TsPlayground({ lab, fullPage = false }: { lab: Lab; fullPage?: b
         </div>
       )}
       <details className="lab-hint">
-        <summary>需要提示？</summary>
+        <summary>{locale === "en" ? "Need a hint?" : "需要提示？"}</summary>
         <p>{lab.hint}</p>
       </details>
+      {lab.expectedDiagnostics && (
+        <div className="lab-expectations">
+          <p><strong>{locale === "en" ? "Expected diagnostics: " : "预期诊断："}</strong>{lab.expectedDiagnostics}</p>
+          <p><strong>{locale === "en" ? "Expected output: " : "预期运行结果："}</strong>{lab.expectedOutput}</p>
+          <details><summary>{locale === "en" ? "Show solution" : "查看参考答案"}</summary><pre><code>{lab.solution}</code></pre></details>
+        </div>
+      )}
     </section>
   );
 }

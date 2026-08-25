@@ -26,5 +26,5 @@ export default async function LessonPage({
   const { slug } = await params;
   const lesson = lessonBySlug.get(slug);
   if (!lesson) notFound();
-  return <LessonView lesson={lesson} />;
+  return <LessonView slug={lesson.slug} />;
 }

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
 import { searchItems } from "@/lib/course";
+import { searchItemsEn } from "@/lib/course-en";
+import { usePreferences } from "@/lib/preferences";
 
 type SearchDialogProps = {
   open: boolean;
@@ -16,6 +18,8 @@ function normalize(value: string) {
 
 export function SearchDialog({ open, onClose }: SearchDialogProps) {
   const [query, setQuery] = useState("");
+  const { locale } = usePreferences();
+  const activeItems = locale === "en" ? searchItemsEn : searchItems;
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -33,9 +37,9 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
 
   const results = useMemo(() => {
     const normalized = normalize(query);
-    if (!normalized) return searchItems.slice(0, 8);
+    if (!normalized) return activeItems.slice(0, 8);
     const tokens = normalized.split(" ");
-    return searchItems
+    return activeItems
       .map((item) => {
         const title = normalize(item.title);
         const haystack = normalize(`${item.title} ${item.description} ${item.keywords}`);
@@ -51,7 +55,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
       .sort((a, b) => b.score - a.score)
       .slice(0, 10)
       .map(({ item }) => item);
-  }, [query]);
+  }, [activeItems, query]);
 
   if (!open) return null;
 
@@ -61,7 +65,7 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
         className="search-dialog"
         role="dialog"
         aria-modal="true"
-        aria-label="搜索课程"
+        aria-label={locale === "en" ? "Search lessons" : "搜索课程"}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="search-input-row">
@@ -70,10 +74,10 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索概念、错误码或代码符号…"
-            aria-label="搜索课程内容"
+            placeholder={locale === "en" ? "Search concepts, errors, or code…" : "搜索概念、错误码或代码符号…"}
+            aria-label={locale === "en" ? "Search course content" : "搜索课程内容"}
           />
-          <button className="icon-button" type="button" onClick={onClose} aria-label="关闭搜索">
+          <button className="icon-button" type="button" onClick={onClose} aria-label={locale === "en" ? "Close search" : "关闭搜索"}>
             <X size={19} />
           </button>
         </div>
@@ -90,12 +94,12 @@ export function SearchDialog({ open, onClose }: SearchDialogProps) {
               </Link>
             ))
           ) : (
-            <div className="empty-search">没有匹配结果。试试 “unknown”“取消” 或 “SSE”。</div>
+            <div className="empty-search">{locale === "en" ? "No matches. Try “unknown”, “cancel”, or “SSE”." : "没有匹配结果。试试 “unknown”“取消” 或 “SSE”。"}</div>
           )}
         </div>
         <footer className="search-footer">
-          <span><kbd>↑</kbd><kbd>↓</kbd> 浏览</span>
-          <span><kbd>Esc</kbd> 关闭</span>
+          <span><kbd>↑</kbd><kbd>↓</kbd> {locale === "en" ? "Navigate" : "浏览"}</span>
+          <span><kbd>Esc</kbd> {locale === "en" ? "Close" : "关闭"}</span>
         </footer>
       </section>
     </div>

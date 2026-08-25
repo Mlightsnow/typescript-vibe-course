@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -10,7 +12,9 @@ import {
 import { CopyButton } from "@/components/copy-button";
 import { ProgressButton } from "@/components/progress-button";
 import { TsPlayground } from "@/components/ts-playground";
-import { formatDuration, getAdjacentLessons, labs, type Lesson } from "@/lib/course";
+import { formatDuration, labs, lessons, type Lesson } from "@/lib/course";
+import { labsEn, lessonsEn } from "@/lib/course-en";
+import { usePreferences } from "@/lib/preferences";
 
 const toneLabels = {
   static: "STATIC",
@@ -20,9 +24,13 @@ const toneLabels = {
   evidence: "EVIDENCE",
 } as const;
 
-export function LessonView({ lesson }: { lesson: Lesson }) {
-  const adjacent = getAdjacentLessons(lesson);
-  const lab = labs[lesson.labId];
+export function LessonView({ slug }: { slug: string }) {
+  const { locale } = usePreferences();
+  const activeLessons = locale === "en" ? lessonsEn : lessons;
+  const activeLabs = locale === "en" ? labsEn : labs;
+  const lesson = activeLessons.find((item) => item.slug === slug) as Lesson;
+  const adjacent = { previous: activeLessons[lesson.order - 1], next: activeLessons[lesson.order + 1] };
+  const lessonLabs = lesson.labIds.map((labId) => activeLabs[labId]);
 
   return (
     <main className="lesson-layout">
@@ -30,7 +38,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
         <header className="lesson-hero">
           <div className="lesson-meta-row">
             <span>{lesson.id}</span>
-            <span><Clock3 size={14} /> {formatDuration(lesson.durationMinutes)}</span>
+            <span><Clock3 size={14} /> {formatDuration(lesson.durationMinutes, locale)}</span>
             <span><GitBranch size={14} /> CodePilot {lesson.projectStage}</span>
           </div>
           <p className="lesson-kicker">{lesson.kicker}</p>
@@ -39,7 +47,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           <div className="outcome-strip">
             <BookMarked size={19} />
             <div>
-              <strong>完成后，你能：</strong>
+              <strong>{locale === "en" ? "By the end, you can:" : "完成后，你能："}</strong>
               <span>{lesson.outcomes.join("；")}</span>
             </div>
           </div>
@@ -72,14 +80,14 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
                   </div>
                 </aside>
               )}
-              {index === 0 && <TsPlayground lab={lab} />}
+              {lessonLabs[index] && <TsPlayground lab={lessonLabs[index]} />}
             </section>
           ))}
 
           <section className="verification-card">
-            <span className="block-eyebrow evidence-text"><ShieldCheck size={15} /> 本章验收</span>
-            <h2>不要凭感觉结束这一章</h2>
-            <p>完成 Playground 后，在项目根目录运行预定义检查。命令不会连接外部模型。</p>
+            <span className="block-eyebrow evidence-text"><ShieldCheck size={15} /> {locale === "en" ? "LESSON CHECK" : "本章验收"}</span>
+            <h2>{locale === "en" ? "Finish with evidence, not a feeling" : "不要凭感觉结束这一章"}</h2>
+            <p>{locale === "en" ? "After the Playground, run this check from the project root. It never contacts a model." : "完成 Playground 后，在项目根目录运行预定义检查。命令不会连接外部模型。"}</p>
             <div className="command-row">
               <code>{lesson.verifyCommand}</code>
               <CopyButton value={lesson.verifyCommand} />
@@ -92,17 +100,17 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           {adjacent.previous ? (
             <Link href={`/lesson/${adjacent.previous.slug}`}>
               <ArrowLeft size={17} />
-              <span><small>上一章</small>{adjacent.previous.title}</span>
+              <span><small>{locale === "en" ? "PREVIOUS" : "上一章"}</small>{adjacent.previous.title}</span>
             </Link>
           ) : <span />}
           {adjacent.next ? (
             <Link href={`/lesson/${adjacent.next.slug}`} className="next-link">
-              <span><small>下一章</small>{adjacent.next.title}</span>
+              <span><small>{locale === "en" ? "NEXT" : "下一章"}</small>{adjacent.next.title}</span>
               <ArrowRight size={17} />
             </Link>
           ) : (
             <Link href="/roadmap" className="next-link">
-              <span><small>接下来</small>查看完整课程地图</span>
+              <span><small>{locale === "en" ? "NEXT" : "接下来"}</small>{locale === "en" ? "View the full roadmap" : "查看完整课程地图"}</span>
               <ArrowRight size={17} />
             </Link>
           )}
@@ -111,7 +119,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
 
       <aside className="lesson-context">
         <div className="context-card">
-          <span>本章路线</span>
+          <span>{locale === "en" ? "IN THIS LESSON" : "本章路线"}</span>
           <ol>
             {lesson.sections.map((section) => (
               <li key={section.id}><a href={`#${section.id}`}>{section.title}</a></li>
@@ -119,7 +127,7 @@ export function LessonView({ lesson }: { lesson: Lesson }) {
           </ol>
         </div>
         <div className="context-card">
-          <span>核心概念</span>
+          <span>{locale === "en" ? "KEY IDEAS" : "核心概念"}</span>
           <div className="tag-list">{lesson.concepts.map((concept) => <i key={concept}>{concept}</i>)}</div>
         </div>
         <div className="trust-mini-card">
